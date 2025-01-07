@@ -13,6 +13,7 @@ export const RoomSchema = new Schema({
         type: Types.ObjectId,
         ref: "User"
     },
+
     attendees: [{
         type: Types.ObjectId,
         ref: "User"
@@ -24,5 +25,6 @@ export const RoomSchema = new Schema({
         }
     ]
 });
+
 
 export const roomModel = model("Room", RoomSchema);

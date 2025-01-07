@@ -5,6 +5,7 @@ import cors from "cors";
 import session from "express-session";
 import passport from "passport";
 import authRoute from "./routes/authRoute";
+import userRoute from "./routes/userRoute";
 import { initializePassport } from "./configs/passportConfig";
 import { initializeWebSocketServer } from "./ws/wsServer";
 import mongoose from "mongoose";
@@ -52,7 +53,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/auth", authRoute);
-
+app.use("/user",userRoute)
 app.get("/", (req: Request, res: Response) => {
   res.send("Server is running!");
 });

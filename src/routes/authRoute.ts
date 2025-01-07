@@ -22,12 +22,12 @@ router.get('/user', (req: Request, res: Response) => {
       success: true,
       user: req.user,
     });
+    // console.log("User:---", req.user);
   } 
   else {
     res.status(401).json({ success: false, error: 'User not authenticated' });
   }
 });
-
 router.get('/logout', (req: Request, res: Response, next: NextFunction) => {
   req.logout((err) => {
     if (err) {

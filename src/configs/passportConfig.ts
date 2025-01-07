@@ -1,6 +1,8 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import dotenv from "dotenv";
+import { createUser, retrieveUserByEmail } from "../utils/dbutils";
+import { userModel } from "../models/User";
 
 dotenv.config();
 
@@ -20,6 +22,7 @@ declare global {
   }
 }
 
+
 export const initializePassport = () => {
   passport.serializeUser((user, done) => {
     done(null, user);
@@ -29,8 +32,24 @@ export const initializePassport = () => {
     done(null, user as Express.User);
   });
 
-  const dbLogic = ()=>{
-    console.log("Hello");
+  const dbLogic = async(profile:any) => {
+    // console.log("Hello");
+    try {
+      let user = await retrieveUserByEmail(profile.emails![0].value);
+      console.log('user: ', user);
+      if (!user) {
+        user = await userModel.create({
+          name: profile.displayName,
+          email: profile.emails![0].value,
+          profileAvatar: profile.photos![0].value,
+        })
+      }
+      user.lastOnlineAt = new Date();
+      await user.save();
+    }
+    catch (err) {
+      console.log(err);
+    }
   }
 
   passport.use(
@@ -40,8 +59,10 @@ export const initializePassport = () => {
         clientSecret: process.env.CLIENT_SECRET!,
         callbackURL: `https://4cfw3zvk-5000.inc1.devtunnels.ms/auth/google/callback`,
       },
-      (accessToken, refreshToken, profile, done) => {
-        console.log("Google Profile:", profile);
+      async (accessToken, refreshToken, profile, done) => {
+        // console.log("Google Profile:", profile);
+        
+        await dbLogic(profile);
 
         const userProfile: Express.User = {
           id: profile.id,
@@ -53,11 +74,10 @@ export const initializePassport = () => {
           refreshToken,
         };
 
-        dbLogic();
 
         return done(null, userProfile);
       }
-      
+
     )
   );
 };
