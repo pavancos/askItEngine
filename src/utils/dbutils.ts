@@ -6,7 +6,9 @@ export async function retrieveUserByEmail(email: string){
     return user;
 }
 export async function retrieveUserById(id: string){
-    let user = await userModel.findById(id);
+    let user = await userModel.findOne({
+        userId: id
+    });
     return user;
 }
 export async function createUser(user:any){

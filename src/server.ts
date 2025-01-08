@@ -24,7 +24,11 @@ const FE_URL = process.env.FE_URL;
 
 app.use(
   cors({
-    origin: "https://zn12df18-5173.inc1.devtunnels.ms",
+    origin:[
+      FE_URL!,
+      "https://zn12df18-5173.inc1.devtunnels.ms/profile",
+      "https://zn12df18-5173.inc1.devtunnels.ms",
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],

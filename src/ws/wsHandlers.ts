@@ -4,9 +4,18 @@ import { Message, Room } from "./types";
 
 const rooms: Record<string, Room> = {};
 
+
 export const handleConnection = (ws: WebSocket, req: IncomingMessage) => {
   console.log("New WebSocket connection");
   
+  
+  
+  ws.send(JSON.stringify({ type: "notification", message: "Connected to server" }));
+
+
+  setTimeout(()=>{
+    console.log(rooms)
+  },2000);
 
   ws.on("message", (message: string) => {
     try {
