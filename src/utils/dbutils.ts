@@ -1,4 +1,5 @@
 import { userModel } from "../models/User";
+import { roomModel } from "../models/Room";
 export async function retrieveUserByEmail(email: string){
     let user = await userModel.findOne({
         email: email
@@ -14,4 +15,16 @@ export async function retrieveUserById(id: string){
 export async function createUser(user:any){
     let newUser = await userModel.create(user);
     return newUser;
+}
+
+export async function retriveRoomById(joinCode:string){
+    let room = await roomModel.findOne({
+        joinCode:joinCode
+    })
+    return room;
+}
+
+export async function createRoomInDB(room:any){
+    let newRoom = await roomModel.create(room);
+    return newRoom;
 }

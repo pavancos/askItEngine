@@ -18,10 +18,6 @@ export const AskSchema = new Schema({
         type: Date,
         default: Date.now
     },
-    upvotes: [{
-        type: Types.ObjectId,
-        ref: 'User'
-    }],
     replies:[{
         type: Types.ObjectId,
         ref: 'Reply'
@@ -29,6 +25,10 @@ export const AskSchema = new Schema({
     room:{
         type:Types.ObjectId,
         ref:'Room'
+    },
+    answered:{
+        type:Boolean,
+        default:false
     }
 })
 

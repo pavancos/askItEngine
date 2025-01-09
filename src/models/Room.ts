@@ -6,6 +6,10 @@ export const RoomSchema = new Schema({
         require: true,
         unique: true
     },
+    title:{
+        type: String,
+        require: true
+    },
     description: {
         type: String
     },

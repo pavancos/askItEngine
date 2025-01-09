@@ -1,25 +1,24 @@
 import { WebSocket } from "ws";
 
-export type Message = {
-    type: "create" |"join" | "message" | "leave" | "notification" | "upvote" | "downvote";
-    roomId: string;
-    username?: string;
-    message?: string;
-};
+export type Attendee = {
+    id:string;
+    emoji:string;
+    socket: WebSocket
+}
 
 export type Room = {
-    clients: {
-        ws: WebSocket;
-        username: string
-    }[];
-};
-export type XRoom = {
+    joinCode: string;
+    title:string;
+    desc?:string;
     creator:{
-        ws: WebSocket;
-        username: string
-    };
-    clients: {
-        ws: WebSocket;
-        username: string
-    }[];
+        id:string;
+        name:string;
+        socket:WebSocket;
+    }
+    attendees: Array<Attendee>;    
 };
+
+export type Message = {
+    type : "create" | "join" | "error" | "roomCreated" | "attendeeNotify" | "ask" | "askNotify" | "upvote" | "upvoteNotify" | "leaveRoom" | "leaveRoomNotify" | "endRoom" | "endRoomNotify" | "markAsAnswered" | "markAsAnsweredNotify"
+    payload:any;
+}

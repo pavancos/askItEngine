@@ -1,14 +1,16 @@
 import { WebSocket } from "ws";
 import { IncomingMessage } from "http";
-import { Message, Room } from "./types";
+import { Message,Room,Attendee } from "./types";
+import { generateJoinCode, generateRandomEmoji } from "./wsUtils/joinUtils";
+import { retrieveUserById,createRoomInDB } from "../utils/dbutils";
+import { title } from "process";
+
 
 const rooms: Record<string, Room> = {};
 
 
 export const handleConnection = (ws: WebSocket, req: IncomingMessage) => {
   console.log("New WebSocket connection");
-  
-  
   
   ws.send(JSON.stringify({ type: "notification", message: "Connected to server" }));
 
@@ -22,16 +24,8 @@ export const handleConnection = (ws: WebSocket, req: IncomingMessage) => {
       const parsedMessage: Message = JSON.parse(message);
       switch (parsedMessage.type) {
         case "create":
-          handleCreateRoom(ws, parsedMessage.username!);
+          handleCreateRoom(ws, parsedMessage);
         case "join":
-          handleJoinRoom(ws, parsedMessage.roomId, parsedMessage.username!);
-          break;
-        case "message":
-          handleChatMessage(parsedMessage.roomId, parsedMessage.username!, parsedMessage.message!);
-          break;
-        case "leave":
-          handleLeaveRoom(ws, parsedMessage.roomId, parsedMessage.username!);
-          break;
         default:
           console.error("Unknown message type");
       }
@@ -45,51 +39,92 @@ export const handleConnection = (ws: WebSocket, req: IncomingMessage) => {
   });
 };
 
-const handleCreateRoom = (ws:WebSocket,username:string)=>{
-  const roomId = (Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000).toString()
-  console.log('roomId: ', roomId);
-  handleJoinRoom(ws,roomId,username);
+const handleCreateRoom = async (ws:WebSocket,message:Message) =>{
+  const joinCode = generateJoinCode();
+  // validate user
+  const user = await retrieveUserById(message.payload.userId);
+  if(!user){
+    ws.send(
+      JSON.stringify({
+        "type":"error",
+        "payload":{
+          "message":"SignIn to Create Room"
+        }
+      })
+    )
+    return;
+  }
+  const newRoom = {
+    joinCode,
+    title: message.payload.title,
+    description: message.payload.desc,
+    speaker: user._id,
+  }
+  createRoomInDB(newRoom) 
+  rooms[joinCode] = {
+    joinCode,
+    title: message.payload.title,
+    creator: {
+      id: user.userId as string,
+      name: user.name as string,
+      socket: ws,
+    },
+    attendees: [],
+  };
+  ws.send(
+    JSON.stringify({
+      type: "roomCreated",
+      payload: {
+        joinCode,
+        title: message.payload.title,
+        desc: message.payload.desc
+      },
+    })
+  );
 }
 
-const handleJoinRoom = (ws: WebSocket, roomId: string, username: string) => {
-  if (!rooms[roomId]) {
-    rooms[roomId] = { clients: [] };
+const handleJoinRoom = async (ws:WebSocket,message:Message) =>{
+  const joinCode = message.payload.joinCode;
+  const room = rooms[joinCode];
+  if(!room){
+    ws.send(
+      JSON.stringify({
+        "type":"error",
+        "payload":{
+          "message":"Room is Not Active or Doesnot Exist"
+        }
+      })
+    )
+    return;
   }
-
-  rooms[roomId].clients.push({ ws, username });
-  console.log(`${username} joined room ${roomId}`);
-
-  broadcastMessage(roomId, {
-    type: "notification",
-    message: `${username} has joined the room.`,
-  });
-};
-
-const handleChatMessage = (roomId: string, username: string, message: string) => {
-  console.log(`Message in room ${roomId} from ${username}: ${message}`);
-
-  broadcastMessage(roomId, {
-    type: "message",
-    username,
-    message,
-  });
-};
-
-const handleLeaveRoom = (ws: WebSocket, roomId: string, username: string) => {
-  if (rooms[roomId]) {
-    rooms[roomId].clients = rooms[roomId].clients.filter((client) => client.ws !== ws);
-    console.log(`${username} left room ${roomId}`);
-
-    broadcastMessage(roomId, {
-      type: "notification",
-      message: `${username} has left the room.`,
-    });
-
-    if (rooms[roomId].clients.length === 0) {
-      delete rooms[roomId];
-    }
+  const user = await retrieveUserById(message.payload.userId);
+  if(!user){
+    ws.send(
+      JSON.stringify({
+        "type":"error",
+        "payload":{
+          "message":"SignIn to Join Room"
+        }
+      })
+    )
+    return;
   }
-};
+  const attendee: Attendee = {
+    id: user.userId as string,
+    emoji: generateRandomEmoji(),
+    socket: ws,
+  };
+  room.attendees.push(attendee);
+  room.creator.socket.send(
+    JSON.stringify({
+      type: "attendeeNotify",
+      payload: {
+        attendees: room.attendees.length,
+      },
+    })
+  );
+}
+
 
 // const broadcastMessage = (roomId: string, message: any) => {
 //   if (rooms[roomId]) {
@@ -99,15 +134,15 @@ const handleLeaveRoom = (ws: WebSocket, roomId: string, username: string) => {
 //   }
 // };
 
-const broadcastMessage = (roomId: string, message: any) => {
-  if (rooms[roomId]) {
-    rooms[roomId].clients.forEach((client) => {
-      client.ws.send(
-        JSON.stringify({
-          ...message,
-          sender: "anonymous",
-        })
-      );
-    });
-  }
-};
+// const broadcastMessage = (roomId: string, message: any) => {
+//   if (rooms[roomId]) {
+//     rooms[roomId].clients.forEach((client) => {
+//       client.ws.send(
+//         JSON.stringify({
+//           ...message,
+//           sender: "anonymous",
+//         })
+//       );
+//     });
+//   }
+// };

@@ -16,7 +16,7 @@ export const ReplySchema = new Schema({
         required: true,
         enum: ['Ask', 'Reply']
     },
-    useRef: {
+    userRef: {
         type: Types.ObjectId,
         required: true,
         ref: 'User'
@@ -28,11 +28,6 @@ export const ReplySchema = new Schema({
     timeSpamp: {
         type: Date,
         default: Date.now
-    },
-    upvotes: [{
-        type: Types.ObjectId,
-        ref: 'User'
-    }],
-
+    }
 })
 export const replyModel = model('Reply',ReplySchema)
