@@ -1,10 +1,10 @@
-import { model, Schema, Types } from "mongoose";
+import { model, Schema, Types, InferSchemaType } from "mongoose";
 
 export const RoomSchema = new Schema({
     joinCode: {
         type: String,
         require: true,
-        unique: true
+        unique: true,
     },
     title:{
         type: String,
@@ -29,6 +29,5 @@ export const RoomSchema = new Schema({
         }
     ]
 });
-
 
 export const roomModel = model("Room", RoomSchema);
