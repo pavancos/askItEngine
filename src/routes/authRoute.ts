@@ -3,17 +3,17 @@ import passport from "passport";
 import dotenv from "dotenv";
 dotenv.config();
 const router = Router();
-const CLIENT_URL = process.env.FE_URL!;
-console.log('CLIENT_URL: ', CLIENT_URL);
+const FE_URL = process.env.FE_URL!;
+console.log('FE_URL: ', FE_URL);
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 router.get(
   '/google/callback',
-  passport.authenticate('google', { failureRedirect: CLIENT_URL }),
+  passport.authenticate('google', { failureRedirect: FE_URL }),
   (req: Request, res: Response) => {
     // console.log("Google callback");
     // res.redirect('https://zn12df18-5173.inc1.devtunnels.ms/')
-    res.redirect(CLIENT_URL);
+    res.redirect(FE_URL);
   }
 );
 router.get('/user', (req: Request, res: Response) => {

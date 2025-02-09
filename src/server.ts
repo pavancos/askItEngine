@@ -6,8 +6,8 @@ import session from "express-session";
 import passport from "passport";
 import authRoute from "./routes/authRoute";
 import userRoute from "./routes/userRoute";
+import router from "./routes/roomRoute";
 import { initializePassport } from "./configs/passportConfig";
-import { initializeWebSocketServer } from "./ws/wsServer";
 import mongoose from "mongoose";
 
 dotenv.config();
@@ -24,7 +24,11 @@ const FE_URL = process.env.FE_URL;
 
 app.use(
   cors({
-    origin: "https://zn12df18-5173.inc1.devtunnels.ms",
+    origin:[
+      FE_URL!,
+      "https://zn12df18-5173.inc1.devtunnels.ms/profile",
+      "https://zn12df18-5173.inc1.devtunnels.ms",
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -53,12 +57,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/auth", authRoute);
-app.use("/user",userRoute)
+app.use("/user",userRoute);
+app.use("/room", router);
 app.get("/", (req: Request, res: Response) => {
   res.send("Server is running!");
 });
 
 const server = http.createServer(app);
-initializeWebSocketServer(server);
 
 export { server };

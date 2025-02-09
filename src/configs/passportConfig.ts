@@ -3,14 +3,16 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import dotenv from "dotenv";
 import { createUser, retrieveUserByEmail } from "../utils/dbutils";
 import { userModel } from "../models/User";
+import { jwtTokenVerification,TokenGeneration } from "../utils/authutils";
+
 
 dotenv.config();
 
-const SERVER_URL = process.env.BE_URL;
 
 declare global {
   namespace Express {
     interface User {
+      _id?:string;
       id: string;
       displayName: string;
       emails: { value: string }[];
@@ -18,6 +20,7 @@ declare global {
       provider: string;
       accessToken?: string;
       refreshToken?: string;
+      token?: string;
     }
   }
 }
@@ -39,16 +42,22 @@ export const initializePassport = () => {
       console.log('user: ', user);
       if (!user) {
         user = await userModel.create({
+          id: profile.id,
           name: profile.displayName,
           email: profile.emails![0].value,
-          profileAvatar: profile.photos![0].value,
+          profileAvatar: profile.photos![0].value
         })
       }
       user.lastOnlineAt = new Date();
       await user.save();
+      return {
+        _id: user._id,
+        email: user.email
+      };
     }
     catch (err) {
       console.log(err);
+      return null;
     }
   }
 
@@ -62,20 +71,31 @@ export const initializePassport = () => {
       async (accessToken, refreshToken, profile, done) => {
         // console.log("Google Profile:", profile);
         
-        await dbLogic(profile);
+        const user = await dbLogic(profile);
 
-        const userProfile: Express.User = {
-          id: profile.id,
-          displayName: profile.displayName,
-          emails: profile.emails || [],
-          photos: profile.photos || [],
-          provider: profile.provider,
-          accessToken,
-          refreshToken,
-        };
+        // jwt
+        let token;
+        if(user){
+          token = TokenGeneration(user);
+          console.log('token: ', token);
+          const userProfile: Express.User = {
+            _id: user?._id as unknown as string,
+            id: profile.id,
+            displayName: profile.displayName,
+            emails: profile.emails || [],
+            photos: profile.photos || [],
+            provider: profile.provider,
+            accessToken,
+            refreshToken,
+            token
+          };
+          return done(null, userProfile);
 
+        }
+        else {
+          return done(null, false);
+        }
 
-        return done(null, userProfile);
       }
 
     )
