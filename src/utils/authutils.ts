@@ -1,13 +1,14 @@
 import jwt, { Jwt } from "jsonwebtoken";
 import dotenv from 'dotenv'
 dotenv.config();
-export function TokenGeneration(userID: string) {
+export function TokenGeneration(user : any) {
+    const email = user.email as string;
+    const id = user._id as string;
     const token = jwt.sign(
-        {userID},
-        process.env.JWT_SECRET!,
         {
-            expiresIn: "1h"
-        }
+            email, id
+        },
+        process.env.JWT_SECRET!
     )
     return token;
 }

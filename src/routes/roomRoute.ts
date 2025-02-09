@@ -1,7 +1,7 @@
 import { Router } from "express";
 import dotenv from "dotenv";
 import { generateJoinCode } from "../utils/roomUtils";
-import { createRoomInDB, joinRoominDB, retrieveUserByEmail } from "../utils/dbutils";
+import { createRoomInDB, joinRoominDB, retrieveUserByEmail,retriveRoomById } from "../utils/dbutils";
 dotenv.config();
 
 const router = Router();
@@ -69,8 +69,6 @@ router.post("/create", async(req, res) => {
 
 
 // Get All Rooms
-
-// Get Room By ID
 
 // Join a Room by ID
 

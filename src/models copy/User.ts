@@ -1,6 +1,10 @@
 import {model, Schema,Types} from "mongoose";
 
 export const UserSchema = new Schema({
+    userId:{
+        type:String,
+        require:true
+    },
     name:{
         type:String,
         require:true
