@@ -66,7 +66,7 @@ export const initializePassport = () => {
       {
         clientID: process.env.CLIENT_ID!,
         clientSecret: process.env.CLIENT_SECRET!,
-        callbackURL: `https://4cfw3zvk-5000.inc1.devtunnels.ms/auth/google/callback`,
+        callbackURL: `https://askitengine.vercel.app/auth/google/callback`,
       },
       async (accessToken, refreshToken, profile, done) => {
         // console.log("Google Profile:", profile);
