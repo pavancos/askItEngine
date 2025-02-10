@@ -36,7 +36,7 @@ export const initializePassport = () => {
   });
 
   const dbLogic = async(profile:any) => {
-    // console.log("Hello");
+    // console.log("DB logic called");
     try {
       let user = await retrieveUserByEmail(profile.emails![0].value);
       console.log('user: ', user);
@@ -67,6 +67,7 @@ export const initializePassport = () => {
         clientID: process.env.CLIENT_ID!,
         clientSecret: process.env.CLIENT_SECRET!,
         callbackURL: `https://askitengine.vercel.app/auth/google/callback`,
+        // callbackURL: `https://4cfw3zvk-5000.inc1.devtunnels.ms/auth/google/callback`,
       },
       async (accessToken, refreshToken, profile, done) => {
         // console.log("Google Profile:", profile);
