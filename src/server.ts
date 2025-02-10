@@ -9,6 +9,7 @@ import userRoute from "./routes/userRoute";
 import router from "./routes/roomRoute";
 import { initializePassport } from "./configs/passportConfig";
 import mongoose from "mongoose";
+import MongoStore from "connect-mongo";
 
 dotenv.config();
 mongoose.connect(process.env.MONGO_URI!)
@@ -36,18 +37,37 @@ app.use(
   })
 );
 
+
+
 app.options("https://zn12df18-5173.inc1.devtunnels.ms", cors());
 app.use(express.json());
 
+// app.use(
+//   session({
+//     name: "Session",
+//     secret: process.env.SESSION_SECRET || "SECRET",
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//       secure: false,
+//       httpOnly: true,
+//     },
+//   })
+// );
 app.use(
   session({
     name: "Session",
     secret: process.env.SESSION_SECRET || "SECRET",
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      client: mongoose.connection.getClient(),
+      collectionName: "sessions",
+    }),
     cookie: {
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24,
     },
   })
 );
