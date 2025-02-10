@@ -32,8 +32,7 @@ app.use(
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    maxAge: 86400,
+    allowedHeaders: ["Content-Type", "Authorization", "Set-Cookie"]
   })
 );
 
@@ -65,16 +64,24 @@ app.use(
       collectionName: "sessions",
     }),
     cookie: {
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
+      sameSite: "none",
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24,
-    },
+    }    
   })
 );
 
 initializePassport();
 app.use(passport.initialize());
 app.use(passport.session());
+
+
+app.use((req, res, next) => {
+  console.log("Session:", req.session);
+  console.log("User:", req.user);
+  next();
+});
 
 app.use("/auth", authRoute);
 app.use("/user",userRoute);
