@@ -64,8 +64,8 @@ app.use(
       collectionName: "sessions",
     }),
     cookie: {
-      secure: true,
-      sameSite: "none",
+      secure: false,
+      sameSite: "lax",
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24,
     }    
@@ -77,11 +77,11 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-app.use((req, res, next) => {
-  console.log("Session:", req.session);
-  console.log("User:", req.user);
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log("Session:", req.session);
+//   console.log("User:", req.user);
+//   next();
+// });
 
 app.use("/auth", authRoute);
 app.use("/user",userRoute);
