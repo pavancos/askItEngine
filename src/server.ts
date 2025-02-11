@@ -22,6 +22,8 @@ mongoose.connect(process.env.MONGO_URI!)
           FE_URL!,
           "https://zn12df18-5173.inc1.devtunnels.ms/profile",
           "https://zn12df18-5173.inc1.devtunnels.ms",
+          "https://4cfw3zvk-5173.inc1.devtunnels.ms/profile",
+          "https://4cfw3zvk-5173.inc1.devtunnels.ms",
         ],
         credentials: true,
         methods: ["GET", "POST", "PUT", "DELETE"],
@@ -32,6 +34,7 @@ mongoose.connect(process.env.MONGO_URI!)
 
 
     app.options("https://zn12df18-5173.inc1.devtunnels.ms", cors());
+    // app.options("https://4cfw3zvk-5173.inc1.devtunnels.ms", cors());
     app.use(express.json());
 
     // app.use(
@@ -89,6 +92,6 @@ mongoose.connect(process.env.MONGO_URI!)
     console.error(err);
   });
 
-  const server = http.createServer(app);
+const server = http.createServer(app);
 
-  export { server };
+export { server };
