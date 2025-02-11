@@ -15,82 +15,82 @@ dotenv.config();
 mongoose.connect(process.env.MONGO_URI!)
   .then(() => {
     console.log("Connected to MongoDB");
-    const FE_URL = process.env.FE_URL;
-    app.use(
-      cors({
-        origin: [
-          FE_URL!,
-          "https://zn12df18-5173.inc1.devtunnels.ms/profile",
-          "https://zn12df18-5173.inc1.devtunnels.ms",
-          "https://4cfw3zvk-5173.inc1.devtunnels.ms/profile",
-          "https://4cfw3zvk-5173.inc1.devtunnels.ms",
-        ],
-        credentials: true,
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        allowedHeaders: ["Content-Type", "Authorization", "Set-Cookie"]
-      })
-    );
-
-
-
-    app.options("https://zn12df18-5173.inc1.devtunnels.ms", cors());
-    // app.options("https://4cfw3zvk-5173.inc1.devtunnels.ms", cors());
-    app.use(express.json());
-
-    // app.use(
-    //   session({
-    //     name: "Session",
-    //     secret: process.env.SESSION_SECRET || "SECRET",
-    //     resave: false,
-    //     saveUninitialized: false,
-    //     cookie: {
-    //       secure: false,
-    //       httpOnly: true,
-    //     },
-    //   })
-    // );
-    app.use(
-      session({
-        name: "Session",
-        secret: process.env.SESSION_SECRET || "SECRET",
-        resave: false,
-        saveUninitialized: false,
-        store: MongoStore.create({
-          client: mongoose.connection.getClient(),
-          collectionName: "sessions",
-        }),
-        cookie: {
-          secure:true,
-          sameSite: "none",
-          httpOnly: true,
-          maxAge: 1000 * 60 * 60 * 24,
-        }
-      })
-    );
-
-    initializePassport();
-    app.use(passport.initialize());
-    app.use(passport.session());
-
-
-    app.use((req, res, next) => {
-      console.log("Session:", req.session);
-      console.log("User:", req.user);
-      next();
-    });
-
-    app.use("/auth", authRoute);
-    app.use("/user", userRoute);
-    app.use("/room", router);
-    app.get("/", (req: Request, res: Response) => {
-      res.send("Server is running!");
-    });
-
-
   })
   .catch((err) => {
     console.error(err);
   });
+app.use(express.json());
+const FE_URL = process.env.FE_URL;
+app.use(
+  session({
+    name: "Session",
+    secret: process.env.SESSION_SECRET || "SECRET",
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      client: mongoose.connection.getClient(),
+      collectionName: "sessions",
+    }),
+    cookie: {
+      secure: false,
+      sameSite: "none",
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24,
+    }
+  })
+);
+app.use(
+  cors({
+    origin: [
+      FE_URL!,
+      "https://zn12df18-5173.inc1.devtunnels.ms/profile",
+      "https://zn12df18-5173.inc1.devtunnels.ms",
+      "https://4cfw3zvk-5173.inc1.devtunnels.ms/profile",
+      "https://4cfw3zvk-5173.inc1.devtunnels.ms",
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization", "Set-Cookie"]
+  })
+);
+
+
+
+app.options("https://zn12df18-5173.inc1.devtunnels.ms", cors());
+// app.options("https://4cfw3zvk-5173.inc1.devtunnels.ms", cors());
+
+
+// app.use(
+//   session({
+//     name: "Session",
+//     secret: process.env.SESSION_SECRET || "SECRET",
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//       secure: false,
+//       httpOnly: true,
+//     },
+//   })
+// );
+
+
+initializePassport();
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+app.use((req, res, next) => {
+  console.log("Session:", req.session);
+  console.log("User:", req.user);
+  next();
+});
+
+app.use("/auth", authRoute);
+app.use("/user", userRoute);
+app.use("/room", router);
+app.get("/", (req: Request, res: Response) => {
+  res.send("Server is running!");
+});
 
 const server = http.createServer(app);
 
