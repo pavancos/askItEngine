@@ -60,7 +60,7 @@ mongoose.connect(process.env.MONGO_URI!)
           collectionName: "sessions",
         }),
         cookie: {
-          secure:"auto",
+          secure:true,
           sameSite: "none",
           httpOnly: true,
           maxAge: 1000 * 60 * 60 * 24,
