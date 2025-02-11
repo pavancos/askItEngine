@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 const router = Router();
 const FE_URL = process.env.FE_URL!;
-console.log('FE_URL: ', FE_URL);
+
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }),()=>{
   console.log("Google Route accessed");
 });
@@ -18,8 +18,10 @@ router.get(
     res.redirect(FE_URL);
   }
 );
+
 router.get('/user', (req: Request, res: Response) => {
-  console.log("User Route accessed")
+  console.log("User Route accessed");
+  console.log("Session: ", req.session);
   if (req.user) {
     res.json({
       success: true,

@@ -16,6 +16,7 @@ mongoose.connect(process.env.MONGO_URI!)
   .then(() => {
     console.log("Connected to MongoDB");
     const FE_URL = process.env.FE_URL;
+    app.set("trust proxy",1);
     app.use(
       cors({
         origin: [
@@ -60,7 +61,7 @@ mongoose.connect(process.env.MONGO_URI!)
           collectionName: "sessions",
         }),
         cookie: {
-          secure:"auto",
+          secure: true,
           sameSite: "none",
           httpOnly: true,
           maxAge: 1000 * 60 * 60 * 24,
@@ -75,9 +76,18 @@ mongoose.connect(process.env.MONGO_URI!)
 
     app.use((req, res, next) => {
       console.log("Session:", req.session);
+      console.log("Cookies:", req.headers.cookie);
       console.log("User:", req.user);
       next();
     });
+  
+    app.get("/debug-session", (req: Request, res: Response) => {
+      res.json({
+        session: req.session,
+        user: req.user,
+      });
+    });
+
 
     app.use("/auth", authRoute);
     app.use("/user", userRoute);
