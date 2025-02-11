@@ -60,8 +60,8 @@ mongoose.connect(process.env.MONGO_URI!)
           collectionName: "sessions",
         }),
         cookie: {
-          secure: false,
-          sameSite: "lax",
+          secure:"auto",
+          sameSite: "none",
           httpOnly: true,
           maxAge: 1000 * 60 * 60 * 24,
         }
@@ -73,11 +73,11 @@ mongoose.connect(process.env.MONGO_URI!)
     app.use(passport.session());
 
 
-    // app.use((req, res, next) => {
-    //   console.log("Session:", req.session);
-    //   console.log("User:", req.user);
-    //   next();
-    // });
+    app.use((req, res, next) => {
+      console.log("Session:", req.session);
+      console.log("User:", req.user);
+      next();
+    });
 
     app.use("/auth", authRoute);
     app.use("/user", userRoute);
