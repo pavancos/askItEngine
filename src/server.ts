@@ -25,7 +25,7 @@ const FE_URL = process.env.FE_URL;
 
 app.use(
   cors({
-    origin:[
+    origin: [
       FE_URL!,
       "https://zn12df18-5173.inc1.devtunnels.ms/profile",
       "https://zn12df18-5173.inc1.devtunnels.ms",
@@ -64,11 +64,12 @@ app.use(
       collectionName: "sessions",
     }),
     cookie: {
-      secure: true,
-      sameSite: "none",
+      secure: false, //THIS is the False thats working
+      // secure:true,
+      sameSite: "lax",
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24,
-    }    
+    }
   })
 );
 
@@ -84,7 +85,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/auth", authRoute);
-app.use("/user",userRoute);
+app.use("/user", userRoute);
 app.use("/room", router);
 app.get("/", (req: Request, res: Response) => {
   res.send("Server is running!");
